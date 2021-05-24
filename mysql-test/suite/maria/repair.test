@@ -35,7 +35,11 @@ DROP TABLE t1;
 
 CREATE TABLE t1 (i INT) ENGINE=Aria;
 INSERT INTO t1 VALUES (1);
-SET max_session_mem_used=50000;
+--let $mem_used=query_get_value(SHOW SESSION STATUS LIKE 'MEMORY_USED',Value,1)
+--evalp SET max_session_mem_used= IF('$VALGRIND_TEST', $mem_used + 9000, 50000)
+--let $actual_mem_used=  `SELECT @@max_session_mem_used`
+--replace_result $actual_mem_used MEMORY_USED
 REPAIR LOCAL TABLE t1 USE_FRM;
+--replace_result $actual_mem_used MEMORY_USED
 REPAIR LOCAL TABLE t1;
 DROP TABLE t1;
