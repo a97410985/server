@@ -91,14 +91,12 @@ master-bin.000001	#
 master-bin.000002	#
 INSERT INTO t1 VALUES (1, REPEAT("x", 1));
 INSERT INTO t2 VALUES (1, REPEAT("x", 1));
+SET GLOBAL debug_dbug="d,enable_log_write_upto_crash";
 BEGIN;
 INSERT INTO t2 VALUES (2, REPEAT("x", 4100));
 INSERT INTO t1 VALUES (2, REPEAT("x", 4100));
-SET DEBUG_SYNC= "commit_after_run_commit_ordered SIGNAL con1_ready WAIT_FOR signal_no_signal";
 COMMIT;
 connection default;
-SET DEBUG_SYNC= "now WAIT_FOR con1_ready";
-SET GLOBAL debug_dbug="d,crash_after_log_write_upto";
 # restart: --rpl-semi-sync-slave-enabled=1
 connection default;
 #

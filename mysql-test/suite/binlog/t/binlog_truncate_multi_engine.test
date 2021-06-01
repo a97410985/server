@@ -37,7 +37,7 @@ CREATE TABLE t2 (a INT PRIMARY KEY, b MEDIUMTEXT) ENGINE=rocksdb;
 --let $description = "one engine has committed its transaction branch"
 # Hold off after one engine has committed.
 --let $shutdown_timeout=0
---let $debug_sync_action = "commit_after_run_commit_ordered SIGNAL con1_ready WAIT_FOR signal_no_signal"
+--let $debug_sync_action = ""
 # Both debug_sync and debug-dbug are required to make sure Engines remember the commit state
 # debug_sync alone will not help.
 --let $restart_parameters = --rpl-semi-sync-slave-enabled=1
@@ -46,6 +46,7 @@ CREATE TABLE t2 (a INT PRIMARY KEY, b MEDIUMTEXT) ENGINE=rocksdb;
 
 --let $case = "C"
 --let $description= "both engines have committed its transaction branch"
+--let $debug_sync_action = "commit_after_run_commit_ordered SIGNAL con1_ready WAIT_FOR signal_no_signal"
 # Hold off after both engines have committed. The server is shut down.
 --let $shutdown_timeout=
 --let $restart_parameters = --rpl-semi-sync-slave-enabled=1

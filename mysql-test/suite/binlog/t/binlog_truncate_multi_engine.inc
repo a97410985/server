@@ -20,37 +20,39 @@ connect(con1,localhost,root,,);
 --source include/show_binary_logs.inc
 INSERT INTO t1 VALUES (1, REPEAT("x", 1));
 INSERT INTO t2 VALUES (1, REPEAT("x", 1));
+if (`SELECT $case = "B"`)
+{
+  --write_file $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+wait-binlog_truncate_multi_engine.test
+EOF
+
+  SET GLOBAL debug_dbug="d,enable_log_write_upto_crash";
+}
 BEGIN;
   INSERT INTO t2 VALUES (2, REPEAT("x", 4100));
   INSERT INTO t1 VALUES (2, REPEAT("x", 4100));
 
---eval SET DEBUG_SYNC= $debug_sync_action
+if (`SELECT $debug_sync_action != ""`)
+{
+  --eval SET DEBUG_SYNC= $debug_sync_action
+}
 send COMMIT;
 
 --connection default
-SET DEBUG_SYNC= "now WAIT_FOR con1_ready";
 if (`SELECT $case = "B"`)
 {
-
---write_file $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
-wait-binlog_truncate_multi_engine.test
-EOF
-
-  SET GLOBAL debug_dbug="d,crash_after_log_write_upto";
   --source include/wait_until_disconnected.inc
-
   --source include/start_mysqld.inc
-  --enable_reconnect
-  --source include/wait_until_connected_again.inc
 }
+if (`SELECT $case != "B"`)
+{
+  SET DEBUG_SYNC= "now WAIT_FOR con1_ready";
+  --echo List of binary logs after rotation
+  --source include/show_binary_logs.inc
 
-if (`SELECT $case != "B"`) {
---echo List of binary logs after rotation
---source include/show_binary_logs.inc
-
---echo # restart the server with $restart_parameters
---echo # the server is restarted
---source include/restart_mysqld.inc
+  --echo # restart the server with $restart_parameters
+  --echo # the server is restarted
+  --source include/restart_mysqld.inc
 }
 
 --connection default
