@@ -1498,6 +1498,14 @@ inline fil_space_t *fil_system_t::default_encrypt_next(
       }
     }
   }
+  else if (it->is_stopping())
+  {
+    /* Find the next suitable default encrypt table if
+    beginning of default_encrypt_tables list has stop flag
+    enabled */
+    while (++it != end &&
+           (!UT_LIST_GET_LEN(it->chain) || it->is_stopping()));
+  }
 
   if (it == end)
     return temp_space;
