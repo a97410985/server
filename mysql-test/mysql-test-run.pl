@@ -5086,6 +5086,16 @@ sub mysqld_start ($$) {
                       $opt_start_timeout, $mysqld->{'proc'}, $warn_seconds))
   {
     my $mname= $mysqld->name();
+	mtr_report("Ovdje sam");
+	mtr_report($path_current_testlog);
+	# Report failure about the last test case before exit
+	my $test_name= mtr_grab_file($path_current_testlog);
+	mtr_report("Ovdje sam");
+	$test_name =~ s/^CURRENT_TEST:\s//;
+	my $tinfo = My::Test->new(name => $test_name);
+	$tinfo->{result}= 'MTR_RES_FAILED';
+	$tinfo->{logfile}=$path_current_testlog;
+	mtr_report_test($tinfo);
     mtr_error("Failed to start mysqld $mname with command $exe");
   }
 
