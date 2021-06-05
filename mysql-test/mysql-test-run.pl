@@ -5094,7 +5094,9 @@ sub mysqld_start ($$) {
 	$test_name =~ s/^CURRENT_TEST:\s//;
 	my $tinfo = My::Test->new(name => $test_name);
 	$tinfo->{result}= 'MTR_RES_FAILED';
+	$tinfo->{failures}= 1;
 	$tinfo->{logfile}=$path_current_testlog;
+	report_option('verbose', 1);
 	mtr_report_test($tinfo);
     mtr_error("Failed to start mysqld $mname with command $exe");
   }
